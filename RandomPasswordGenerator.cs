@@ -3,9 +3,8 @@ using Microsoft.Extensions.Logging;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Net;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker.Http;
-using System.Drawing.Text;
+
 
 namespace GeekyMon2.Azure.Function.RandomPasswordGenerator
 {
@@ -22,7 +21,8 @@ namespace GeekyMon2.Azure.Function.RandomPasswordGenerator
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
             dynamic? data = JsonSerializer.Deserialize<JsonNode>(requestBody);
-            string? length = (string?)data?["length"];
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            string length = (string)data["length"];
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             ResponseData res = new(generator.GeneratePassword(length));

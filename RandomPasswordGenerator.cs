@@ -1,26 +1,22 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using GeekyMon2.Azure.Function.PasswordGenerator;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Net;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Azure.Functions.Worker.Http;
+using System.Drawing.Text;
 
-namespace GeekyMon2.Azure.Function
+namespace GeekyMon2.Azure.Function.RandomPasswordGenerator
 {
-    public class RandomPasswordGenerator
+    public class RandomPasswordGenerator(ILogger<RandomPasswordGenerator> logger)
     {
-        private readonly ILogger<RandomPasswordGenerator> _logger;
-        private PasswordGenerator _generator;
-        
-
-        public RandomPasswordGenerator(ILogger<RandomPasswordGenerator> logger, PasswordGenerator generator)
-        {
-            _logger = logger;
-            _generator = generator;
-        }
+        private readonly ILogger<RandomPasswordGenerator> _logger = logger;
 
         [Function("RandomPasswordGenerator")]
-        public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
+        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
         {
+            PasswordGenerator generator = new();
             _logger.LogInformation("C# HTTP trigger function RandomPasswordGenerator request.");
 
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -29,12 +25,10 @@ namespace GeekyMon2.Azure.Function
             string? length = (string?)data?["length"];
 
             var response = req.CreateResponse(HttpStatusCode.OK);
-            response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
+            ResponseData res = new(generator.GeneratePassword(length));
+            await response.WriteStringAsync(JsonSerializer.Serialize(res));
 
-
-            string password = generator.GeneratePassword(length);
-
-            return response.WriteAsync($"password: {password}");
+            return response;
         }
     }
 }

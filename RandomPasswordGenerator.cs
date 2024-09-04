@@ -13,7 +13,7 @@ namespace GeekyMon2.Azure.Function.RandomPasswordGenerator
         private readonly ILogger<RandomPasswordGenerator> _logger = logger;
 
         [Function("RandomPasswordGenerator")]
-        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+        public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
             PasswordGenerator generator = new();
             _logger.LogInformation("C# HTTP trigger function RandomPasswordGenerator request.");

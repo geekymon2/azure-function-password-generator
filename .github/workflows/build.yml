@@ -1,0 +1,27 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet build --configuration Release
+      - run: dotnet publish --configuration Release --output ./publish
+      - run: zip -r ./publish.zip ./publish
+      - name: Publish Package to GitHub Package Registry
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Content-Type: application/zip" \
+            --data-binary @dist/publish.zip \
+            https://uploads.github.com/repos/${{ github.repository }}/releases/latest/assets?name=publish.zip

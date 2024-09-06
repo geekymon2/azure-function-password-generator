@@ -18,6 +18,10 @@ jobs:
       - run: dotnet build --configuration Release
       - run: dotnet publish --configuration Release --output ./publish
       - run: zip -r ./publish.zip ./publish
+      - name: Check contents
+        run: ls -la
+      - name: Check contents in publish folder
+        run: ls -la ./publish
       - name: Publish Package to GitHub Package Registry
         run: |
           curl -X POST \

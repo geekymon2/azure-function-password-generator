@@ -27,5 +27,5 @@ jobs:
           curl -X POST \
             -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
             -H "Content-Type: application/zip" \
-            --data-binary @./publish.zip \
+            --data-binary publish.zip \
             https://uploads.github.com/repos/${{ github.repository }}/releases/latest/assets?name=publish.zip
